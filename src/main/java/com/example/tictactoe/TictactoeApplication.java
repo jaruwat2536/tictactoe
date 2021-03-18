@@ -1,11 +1,12 @@
 package com.example.tictactoe;
 
-import com.example.tictactoe.repository.StudentRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import com.example.tictactoe.entity.Student;
+import com.example.tictactoe.entity.XOHistory;
+import com.example.tictactoe.repository.XOHistoryRepository;
+import java.util.Date;
 
 @SpringBootApplication
 public class TictactoeApplication {
@@ -15,9 +16,9 @@ public class TictactoeApplication {
     }
 
     @Bean
-    public CommandLineRunner demo(StudentRepository studentRepository) {
+    public CommandLineRunner demo(XOHistoryRepository historyRepository) {
         return (args) -> {
-            studentRepository.save(new Student(1L, "Jaurwat", "1839900301341"));
+            historyRepository.save(new XOHistory(1L, new Date(), "{}"));
         };
     }
 

@@ -6,7 +6,7 @@
 package com.example.tictactoe.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import com.example.tictactoe.entity.Student;
+import com.example.tictactoe.entity.XOHistory;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
  * @author Jaruwatj
  */
 @Repository
-public interface StudentRepository extends CrudRepository<Student, Long> {
+public interface XOHistoryRepository extends CrudRepository<XOHistory, Long> {
 
 }

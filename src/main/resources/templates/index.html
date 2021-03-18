@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Tic Tac Toe</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+        <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+        <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    </head>
+    <style>
+        body {
+            text-align: center;
+        }
+        div.label-size {
+            margin: 20px 0;
+        }
+        div.form-group {
+            margin: auto;
+        }
+        h3, p.size{
+            font-size: 24px;
+            display: inline;
+        }
+        input.form-control {
+            display: inline;
+            width: 120px;
+        }
+        table {
+            border: solid;
+            margin: auto;
+        }
+        table td {
+            border: solid black 1px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            font-size: 38px;
+        }
+        form {
+            margin: 25px 0;
+        }
+        .container, .row {
+            border: solid 1px;;
+            border-radius: 15px;
+            max-width: 300px;
+            overflow: hidden;
+            border-color: darkgray;
+        }
+        .container .header {
+            background-color: darkgray;
+        }
+    </style>
+    <body>
+        <div class="label-size"><h3>Size: </h3><p class="size" th:text="${tableSize + ' x ' + tableSize}"></p></div>
+        <form class="form-inline" action="/" method="POST">
+            <div class="form-group">
+                <input class="form-control mx-sm-2" type="number" name="tableSize" min="3" max="100" th:value="${tableSize}" />
+                <button class="btn btn-success" >Start</button>
+            </div>
+        </form>
+        <div style="margin: 5px;">
+            <h3 id="tern-label">Tern: X</h3>
+        </div>
+        <table>
+            <tr th:each="i: ${#numbers.sequence(0, tableSize-1)}">
+                <td th:each="j: ${#numbers.sequence(0, tableSize-1)}" th:id="${i+ '-' +j}" onClick="setXO(this);">
+                    <span class="animate__animated animate__bounceIn" style="display: none;">X</span>
+                    <span class="animate__animated animate__bounceIn" style="display: none;">O</span>
+                </td>
+            </tr>
+        </table>
+        <hr/>
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col col-lg-12 header">History</div>
+                <div class="col col-lg-12 data" th:each="history : ${historyList}"><a th:text="${history}"></a></div>
+            </div>
+        </div>
+    </body>
+    <script>
+        const history = [];
+        const tableSize = [[${tableSize}]];
+        const tableSlot = Array.from(Array(tableSize), () => new Array(tableSize));
+
+
+        var tern = 0;
+        var player = 'X';
+        function setXO(el) {
+            history.push({key: el.id, value: player});
+            let rowAndCol = el.id.split('-');
+            if (tern % 2 === 0) {
+                tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
+                $(el).find('span:first-child').css('display', 'block');
+                $('#tern-label').text('Tern: ' + player);
+                $(el).css('pointer-events', 'none');
+            } else {
+                tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
+                $(el).find('span:nth-child(2)').css('display', 'block');
+                $('#tern-label').text('Tern: ' + player);
+                $(el).css('pointer-events', 'none');
+            }
+            tern++;
+            let slotWin = checkWin(rowAndCol[0], rowAndCol[1], player);
+            if (slotWin.length > 0) {
+                setGameWin(player, slotWin);
+            } else {
+                checkGameOver(tern);
+            }
+            player = player === 'X' ? 'O' : 'X';
+        }
+
+        function checkWin(row, col, player) {
+            let isWind = true;
+            let slotWin = [];
+
+            // แนวนอน
+            for (let i = 0; i < tableSize; i++) {
+                if (tableSlot[row][i] !== player) {
+                    isWind = false;
+                    break;
+                } else {
+                    slotWin.push(row + '-' + i);
+                }
+            }
+
+            // แนวตั้ง
+            if (!isWind) {
+                isWind = true;
+                slotWin = [];
+                for (let i = 0; i < tableSize; i++) {
+                    if (tableSlot[i][col] !== player) {
+                        isWind = false;
+                        break;
+                    } else {
+                        slotWin.push(i + '-' + col);
+                    }
+                }
+            }
+
+            // แนวทแยงซ้าย
+            if (!isWind) {
+                isWind = true;
+                slotWin = [];
+                for (let i = 0; i < tableSize; i++) {
+                    if (tableSlot[i][i] !== player) {
+                        isWind = false;
+                        break;
+                    } else {
+                        slotWin.push(i + '-' + i);
+                    }
+                }
+            }
+
+            // แนวทแยงขวา
+            if (!isWind) {
+                isWind = true;
+                slotWin = [];
+                let lastIndex = tableSize - 1;
+                for (let index = 0; index < tableSize; index++) {
+                    if (tableSlot[index][lastIndex - index] !== player) {
+                        isWind = false;
+                        break;
+                    } else {
+                        slotWin.push(index + '-' + (lastIndex - index));
+                    }
+                }
+            }
+
+            if (isWind) {
+                return slotWin;
+            }
+            return [];
+        }
+
+        function checkGameOver(tern) {
+            if (tern >= tableSize * tableSize) {
+                drawBG();
+                $('#tern-label').text('Game Over: Draw');
+                setGameStop();
+            }
+        }
+
+        function setGameWin(player, slotWin) {
+            drawBG();
+            for (let i = 0; i < slotWin.length; i++) {
+                $('table td#' + slotWin[i]).css('background-color', 'red');
+            }
+            $('#tern-label').text("'" + player + "' Win!");
+            setGameStop();
+        }
+
+        function setGameStop() {
+            $('table td').css('pointer-events', 'none');
+            $('.btn.btn-success').text('Re-start');
+            $('.btn.btn-success').attr('class', 'btn btn-danger');
+            saveHistory();
+        }
+
+        function drawBG() {
+            for (let row = 0; row < tableSize; row++) {
+                for (let col = 0; col < tableSize; col++) {
+                    $('table td#' + row + '-' + col).css('background-color', 'lightgray');
+                }
+            }
+        }
+
+        function saveHistory() {
+            $.ajax({
+                type: 'POST',
+                url: '/saveHistory',
+                data: {
+                    history: JSON.stringify(history)
+                },
+                success: function (msg) {
+                    console.log(msg);
+                }, error: function (e) {
+                    console.log(e);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+
+        });
+    </script>
+</html>

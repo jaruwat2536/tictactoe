@@ -5,9 +5,14 @@
  */
 package com.example.tictactoe.entity;
 
+import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.Data;
 
 /**
@@ -16,23 +21,25 @@ import lombok.Data;
  */
 @Entity
 @Data
-public class Student {
+public class XOHistory {
 
     @Id
     @GeneratedValue
     private Long id;
-    private String name;
-    private String passportNumber;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
+    @Lob
+    private String history;
 
-    public Student() {
+    public XOHistory() {
         super();
     }
 
-    public Student(Long id, String name, String passportNumber) {
+    public XOHistory(Long id, Date date, String history) {
         super();
         this.id = id;
-        this.name = name;
-        this.passportNumber = passportNumber;
+        this.date = date;
+        this.history = history;
     }
 
 }
