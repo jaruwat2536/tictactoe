@@ -42,7 +42,7 @@
         form {
             margin: 25px 0;
         }
-        .container, .row {
+        .container {
             border: solid 1px;;
             border-radius: 15px;
             max-width: 300px;
@@ -79,10 +79,10 @@
                 <input class="form-control mx-sm-2" type="number" id="delay" min="1" max="3" value="1" style="width: 60px" />
             </div>
         </div>
-        <div class="container">
-            <div class="row justify-content-md-center" id="history" th:fragment="history">
+        <div class="container" style="padding: 0">
+            <div id="history" th:fragment="history">
                 <div class="col col-lg-12 header">History</div>
-                <div class="col col-lg-12 data" th:each="history : ${historyList}">
+                <div class="col col-lg-12 data" th:each="history : ${historyList}" style="border-top: solid 1px lightgray">
                     <a href="javascript:void(0)" th:id="${history.getId()}" th:text="${history.getDate()}" onclick="onClickHistory(this);"></a>
                 </div>
             </div>
