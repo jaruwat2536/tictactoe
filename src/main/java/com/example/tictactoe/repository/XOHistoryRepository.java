@@ -7,6 +7,7 @@ package com.example.tictactoe.repository;
 
 import org.springframework.data.repository.CrudRepository;
 import com.example.tictactoe.entity.XOHistory;
+import java.util.List;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,4 +17,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface XOHistoryRepository extends CrudRepository<XOHistory, Long> {
 
+    @Override
+    public List<XOHistory> findAll();
 }

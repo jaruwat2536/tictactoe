@@ -16,6 +16,7 @@ import com.example.tictactoe.model.HistoryDetailResponseModel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -30,9 +31,10 @@ public class XOHistoryServiceImpl implements XOHistoryService {
     @Override
     public List<HistoryListResponseModel> getHistoryList() {
         List<HistoryListResponseModel> list = new ArrayList();
-        repository.findAll().forEach(obj -> {
-            list.add(new HistoryListResponseModel(obj.getId(), obj.getDate().toString()));
-        });
+        repository.findAll().stream().sorted((o1, o2) -> o1.getId() < o2.getId() ? 1 : -1)
+                .forEach(obj -> {
+                    list.add(new HistoryListResponseModel(obj.getId(), obj.getDate().toString()));
+                });
         return list;
     }
 

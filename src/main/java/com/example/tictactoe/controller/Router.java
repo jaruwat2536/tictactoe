@@ -46,4 +46,11 @@ public class Router {
         return "index::table";
     }
 
+    @PostMapping("/saveHistory")
+    public String saveHistory(@RequestParam String history, @RequestParam Long tableSize, Model model) {
+        service.saveHistory(history, tableSize);
+        model.addAttribute("historyList", service.getHistoryList());
+        return "index::history";
+    }
+
 }

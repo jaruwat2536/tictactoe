@@ -74,7 +74,7 @@
         </table>
         <hr/>
         <div class="container">
-            <div class="row justify-content-md-center">
+            <div class="row justify-content-md-center" id="history" th:fragment="history">
                 <div class="col col-lg-12 header">History</div>
                 <div class="col col-lg-12 data" th:each="history : ${historyList}">
                     <a href="javascript:void(0)" th:id="${history.getId()}" th:text="${history.getDate()}" onclick="onClickHistory(this);"></a>
@@ -101,10 +101,10 @@
                     try {
                         doReplay(history, msg);
                     } catch (e) {
-                        alert('Error: ' + e)
+                        alert('Error: ' + e);
                     }
                 }, error: function (e) {
-                    alert('Error:: ' + e)
+                    alert('Error:: ' + e);
                 }
             });
         }
@@ -115,7 +115,7 @@
 
             tableSize = msg.tableSize;
             tableSlot = Array.from(Array(tableSize), () => new Array(tableSize));
-            
+
             $('.size').text(tableSize + ' x ' + tableSize);
             $('input[name="tableSize"]').val(tableSize);
             $.ajax({
@@ -292,7 +292,8 @@
                     tableSize: tableSize,
                     history: JSON.stringify(history)
                 },
-                success: function (msg) {
+                success: function (data) {
+                    $("#history").html(data);
                 }, error: function (e) {
                     console.log(e);
                 }
