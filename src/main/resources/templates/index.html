@@ -64,9 +64,9 @@
         <div style="margin: 5px;">
             <h3 id="tern-label">Tern: X</h3>
         </div>
-        <table>
+        <table id="table" th:fragment="table">
             <tr th:each="i: ${#numbers.sequence(0, tableSize-1)}">
-                <td th:each="j: ${#numbers.sequence(0, tableSize-1)}" th:id="${i+ '-' +j}" onClick="setXO(this);">
+                <td th:each="j: ${#numbers.sequence(0, tableSize-1)}" th:id="${i+ '-' +j}" onClick="setXO(this, true);">
                     <span class="animate__animated animate__bounceIn" style="display: none;">X</span>
                     <span class="animate__animated animate__bounceIn" style="display: none;">O</span>
                 </td>
@@ -76,7 +76,9 @@
         <div class="container">
             <div class="row justify-content-md-center">
                 <div class="col col-lg-12 header">History</div>
-                <div class="col col-lg-12 data" th:each="history : ${historyList}"><a th:text="${history}"></a></div>
+                <div class="col col-lg-12 data" th:each="history : ${historyList}">
+                    <a href="javascript:void(0)" th:id="${history.getId()}" th:text="${history.getDate()}" onclick="onClickHistory(this);"></a>
+                </div>
             </div>
         </div>
     </body>
@@ -85,29 +87,82 @@
         const tableSize = [[${tableSize}]];
         const tableSlot = Array.from(Array(tableSize), () => new Array(tableSize));
 
-
         var tern = 0;
         var player = 'X';
-        function setXO(el) {
+
+        function onClickHistory(history) {
+            $.ajax({
+                type: 'POST',
+                url: '/findHistoryDetail',
+                data: {
+                    id: history.id
+                },
+                success: function (msg) {
+                    try {
+                        doReplay(history, msg);
+                    } catch (e) {
+                        alert('Error: ' + e)
+                    }
+                }, error: function (e) {
+                    alert('Error: ' + e)
+                }
+            });
+        }
+
+        function doReplay(history, msg) {
+            $('#tern-label').text("Replay: ");
+            $('#tern-label').append('<h4 style="font-size:16px;">' + history.text + '</h4>');
+
+            $.ajax({
+                url: '/refreshTable',
+                type: 'POST',
+                success: function (data) {
+                    $("#table").html(data);
+                }
+            })
+
+
+            if (msg.history && msg.history !== '') {
+                let jsonArray = JSON.parse(msg.history);
+                let index = 0;
+                resetTable();
+                $('.col.col-lg-12.data').css('pointer-events', 'none');
+                let interval = setInterval(function () {
+                    setXO($('#' + jsonArray[index++]['key']).get(0), false);
+                    if (index >= jsonArray.length) {
+                        clearInterval(interval);
+                        $('.col.col-lg-12.data').css('pointer-events', 'unset');
+                    }
+                }, 1000);
+            } else {
+                alert('Replay not found.');
+            }
+        }
+
+        function setXO(el, saveHistoryFlag) {
             history.push({key: el.id, value: player});
             let rowAndCol = el.id.split('-');
             if (tern % 2 === 0) {
                 tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
                 $(el).find('span:first-child').css('display', 'block');
-                $('#tern-label').text('Tern: ' + player);
+                if (saveHistoryFlag) {
+                    $('#tern-label').text('Tern: ' + player);
+                }
                 $(el).css('pointer-events', 'none');
             } else {
                 tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
                 $(el).find('span:nth-child(2)').css('display', 'block');
-                $('#tern-label').text('Tern: ' + player);
+                if (saveHistoryFlag) {
+                    $('#tern-label').text('Tern: ' + player);
+                }
                 $(el).css('pointer-events', 'none');
             }
             tern++;
             let slotWin = checkWin(rowAndCol[0], rowAndCol[1], player);
             if (slotWin.length > 0) {
-                setGameWin(player, slotWin);
+                setGameWin(player, slotWin, saveHistoryFlag);
             } else {
-                checkGameOver(tern);
+                checkGameOver(tern, saveHistoryFlag);
             }
             player = player === 'X' ? 'O' : 'X';
         }
@@ -175,34 +230,49 @@
             return [];
         }
 
-        function checkGameOver(tern) {
+        function checkGameOver(tern, saveHistoryFlag) {
             if (tern >= tableSize * tableSize) {
                 drawBG();
                 $('#tern-label').text('Game Over: Draw');
-                setGameStop();
+                setGameStop(saveHistoryFlag);
             }
         }
 
-        function setGameWin(player, slotWin) {
+        function setGameWin(player, slotWin, saveHistoryFlag) {
             drawBG();
             for (let i = 0; i < slotWin.length; i++) {
                 $('table td#' + slotWin[i]).css('background-color', 'red');
             }
             $('#tern-label').text("'" + player + "' Win!");
-            setGameStop();
+            setGameStop(saveHistoryFlag);
         }
 
-        function setGameStop() {
+        function setGameStop(saveHistoryFlag) {
             $('table td').css('pointer-events', 'none');
             $('.btn.btn-success').text('Re-start');
             $('.btn.btn-success').attr('class', 'btn btn-danger');
-            saveHistory();
+            if (saveHistoryFlag) {
+                saveHistory();
+            }
         }
 
         function drawBG() {
             for (let row = 0; row < tableSize; row++) {
                 for (let col = 0; col < tableSize; col++) {
                     $('table td#' + row + '-' + col).css('background-color', 'lightgray');
+                }
+            }
+        }
+
+        function resetTable() {
+            tern = 0;
+            player = 'X';
+            for (let row = 0; row < tableSize; row++) {
+                for (let col = 0; col < tableSize; col++) {
+                    tableSlot[row][col] = null;
+                    $('table td#' + row + '-' + col).css('background-color', 'white');
+                    $('table td#' + row + '-' + col).find('*').css('display', 'none');
+                    $('table td#' + row + '-' + col).css('pointer-events', 'unset');
                 }
             }
         }
@@ -215,7 +285,6 @@
                     history: JSON.stringify(history)
                 },
                 success: function (msg) {
-                    console.log(msg);
                 }, error: function (e) {
                     console.log(e);
                 }
