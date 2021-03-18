@@ -57,7 +57,7 @@
         <div class="label-size"><h3>Size: </h3><p class="size" th:text="${tableSize + ' x ' + tableSize}"></p></div>
         <form class="form-inline" action="/" method="POST">
             <div class="form-group">
-                <input class="form-control mx-sm-2" type="number" name="tableSize" min="3" max="100" th:value="${tableSize}" />
+                <input class="form-control mx-sm-2" type="number" name="tableSize" min="3" max="20" th:value="${tableSize}" />
                 <button class="btn btn-success" >Start</button>
             </div>
         </form>
@@ -75,7 +75,7 @@
         <hr/>
         <div class="container form-inline" style="padding: 10px;border: none;">
             <div class="row justify-content-md-center form-group" style="border: none;">
-                <label>Dalay:</label>
+                <label>Speed:</label>
                 <input class="form-control mx-sm-2" type="number" id="delay" min="1" max="3" value="1" style="width: 60px" />
             </div>
         </div>
@@ -174,7 +174,7 @@
                 checkGameOver(tern, saveHistoryFlag);
             }
             player = player === 'X' ? 'O' : 'X';
-            if (saveHistoryFlag) {
+            if (saveHistoryFlag && slotWin.length === 0) {
                 $('#tern-label').text('Tern: ' + player);
             }
         }
