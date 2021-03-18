@@ -85,7 +85,7 @@
     <script>
         const history = [];
         var tableSize = [[${tableSize}]];
-        const tableSlot = Array.from(Array(tableSize), () => new Array(tableSize));
+        var tableSlot = Array.from(Array(tableSize), () => new Array(tableSize));
 
         var tern = 0;
         var player = 'X';
@@ -104,7 +104,7 @@
                         alert('Error: ' + e)
                     }
                 }, error: function (e) {
-                    alert('Error: ' + e)
+                    alert('Error:: ' + e)
                 }
             });
         }
@@ -114,6 +114,8 @@
             $('#tern-label').append('<h4 style="font-size:16px;">' + history.text + '</h4>');
 
             tableSize = msg.tableSize;
+            tableSlot = Array.from(Array(tableSize), () => new Array(tableSize));
+            
             $('.size').text(tableSize + ' x ' + tableSize);
             $('input[name="tableSize"]').val(tableSize);
             $.ajax({
@@ -122,27 +124,26 @@
                 data: {
                     tableSize: msg.tableSize
                 },
-                success: function (data) {
+                success: (data) => {
                     $("#table").html(data);
+                    if (msg.history && msg.history !== '') {
+                        let jsonArray = JSON.parse(msg.history);
+                        let index = 0;
+                        resetTable();
+
+                        $('.col.col-lg-12.data').css('pointer-events', 'none');
+                        let interval = setInterval(function () {
+                            setXO($('#' + jsonArray[index++]['key']).get(0), false);
+                            if (index >= jsonArray.length) {
+                                clearInterval(interval);
+                                $('.col.col-lg-12.data').css('pointer-events', 'unset');
+                            }
+                        }, 1000);
+                    } else {
+                        alert('Replay not found.');
+                    }
                 }
             });
-
-            if (msg.history && msg.history !== '') {
-                let jsonArray = JSON.parse(msg.history);
-                let index = 0;
-                resetTable();
-
-                $('.col.col-lg-12.data').css('pointer-events', 'none');
-                let interval = setInterval(function () {
-                    setXO($('#' + jsonArray[index++]['key']).get(0), false);
-                    if (index >= jsonArray.length) {
-                        clearInterval(interval);
-                        $('.col.col-lg-12.data').css('pointer-events', 'unset');
-                    }
-                }, 1000);
-            } else {
-                alert('Replay not found.');
-            }
         }
 
         function setXO(el, saveHistoryFlag) {
@@ -288,6 +289,7 @@
                 type: 'POST',
                 url: '/saveHistory',
                 data: {
+                    tableSize: tableSize,
                     history: JSON.stringify(history)
                 },
                 success: function (msg) {
@@ -296,9 +298,5 @@
                 }
             });
         }
-
-        $(document).ready(function () {
-
-        });
     </script>
 </html>

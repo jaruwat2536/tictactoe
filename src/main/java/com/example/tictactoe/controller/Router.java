@@ -5,13 +5,8 @@
  */
 package com.example.tictactoe.controller;
 
-import com.example.tictactoe.repository.XOHistoryRepository;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.example.tictactoe.service.XOHistoryService;
 import java.util.Objects;
-import java.util.stream.Stream;
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,26 +22,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class Router {
 
     @Autowired
-    private XOHistoryRepository repository;
+    private XOHistoryService service;
 
     private Integer DEFAULT_TABLE_SIZE = 3;
 
     @GetMapping
     public String getIndex(Model model) {
         model.addAttribute("tableSize", DEFAULT_TABLE_SIZE);
+        model.addAttribute("historyList", service.getHistoryList());
         return "index";
     }
 
     @PostMapping
     public String setTableSize(@RequestParam(required = false) String tableSize, Model model) {
-        List<String> historyList = new ArrayList();
-        repository.findAll().iterator().forEachRemaining((history) -> {
-            System.out.println(history.getDate().toString());
-            historyList.add(history.getDate().toString());
-        });
-
         model.addAttribute("tableSize", Objects.nonNull(tableSize) && !tableSize.isEmpty() ? Integer.valueOf(tableSize) : DEFAULT_TABLE_SIZE);
-        model.addAttribute("historyList", historyList);
+        model.addAttribute("historyList", service.getHistoryList());
         return "index";
     }
+
+    @PostMapping("/refreshTable")
+    public String refreshTable(@RequestParam String tableSize, Model model) {
+        model.addAttribute("tableSize", tableSize);
+        return "index::table";
+    }
+
 }

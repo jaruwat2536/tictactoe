@@ -28,6 +28,7 @@ public class XOHistory {
     private Long id;
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
+    private Long tableSize;
     @Lob
     private String history;
 
@@ -35,10 +36,11 @@ public class XOHistory {
         super();
     }
 
-    public XOHistory(Long id, Date date, String history) {
+    public XOHistory(Long id, Date date, Long tableSize, String history) {
         super();
         this.id = id;
         this.date = date;
+        this.tableSize = tableSize;
         this.history = history;
     }
 

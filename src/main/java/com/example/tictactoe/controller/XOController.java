@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.tictactoe.entity.XOHistory;
+import com.example.tictactoe.model.HistoryDetailResponseModel;
+import com.example.tictactoe.service.XOHistoryService;
 import java.util.Date;
 
 /**
@@ -21,13 +23,15 @@ import java.util.Date;
 public class XOController {
 
     @Autowired
-    private XOHistoryRepository historyRepository;
+    private XOHistoryService service;
 
     @PostMapping("/saveHistory")
-    public XOHistory saveHistory(@RequestParam String history) {
-        XOHistory obj = new XOHistory();
-        obj.setDate(new Date());
-        obj.setHistory(history);
-        return historyRepository.save(obj);
+    public XOHistory saveHistory(@RequestParam String history, @RequestParam Long tableSize) {
+        return service.saveHistory(history, tableSize);
+    }
+
+    @PostMapping("/findHistoryDetail")
+    public HistoryDetailResponseModel findHistoryDetail(@RequestParam Long id) {
+        return service.getHistoryDetail(id);
     }
 }
