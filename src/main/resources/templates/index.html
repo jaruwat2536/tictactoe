@@ -76,8 +76,8 @@
         <div class="container form-inline" style="padding: 10px;border: none;">
             <div class="row justify-content-md-center form-group" style="border: none;">
                 <select id="delay" class="from-control">
-                    <option value="5" selected="selected">Fast</option>
-                    <option value="2">Normal</option>
+                    <option value="5">Fast</option>
+                    <option value="2" selected="selected">Normal</option>
                     <option value="1">Slow</option>
                 </select>
             </div>
@@ -167,23 +167,22 @@
             let slotWin = checkWin(rowAndCol[0], rowAndCol[1], player);
             if (slotWin.length > 0) {
                 setGameWin(player, slotWin, saveHistoryFlag);
+            } else if (tern >= tableSize * tableSize) {
+                setGameOver(tern, saveHistoryFlag);
             } else {
-                checkGameOver(tern, saveHistoryFlag);
-            }
-            player = player === 'X' ? 'O' : 'X';
-            if (saveHistoryFlag && slotWin.length === 0) {
+                player = player === 'X' ? 'O' : 'X';
                 $('#tern-label').text('Tern: ' + player);
             }
         }
 
         function checkWin(row, col, player) {
-            let isWind = true;
+            let isWin = true;
             let slotWin = [];
 
             // แนวนอน
             for (let i = 0; i < tableSize; i++) {
                 if (tableSlot[row][i] !== player) {
-                    isWind = false;
+                    isWin = false;
                     break;
                 } else {
                     slotWin.push(row + '-' + i);
@@ -191,12 +190,12 @@
             }
 
             // แนวตั้ง
-            if (!isWind) {
-                isWind = true;
+            if (!isWin) {
+                isWin = true;
                 slotWin = [];
                 for (let i = 0; i < tableSize; i++) {
                     if (tableSlot[i][col] !== player) {
-                        isWind = false;
+                        isWin = false;
                         break;
                     } else {
                         slotWin.push(i + '-' + col);
@@ -205,12 +204,12 @@
             }
 
             // แนวทแยงซ้าย
-            if (!isWind) {
-                isWind = true;
+            if (!isWin) {
+                isWin = true;
                 slotWin = [];
                 for (let i = 0; i < tableSize; i++) {
                     if (tableSlot[i][i] !== player) {
-                        isWind = false;
+                        isWin = false;
                         break;
                     } else {
                         slotWin.push(i + '-' + i);
@@ -219,13 +218,13 @@
             }
 
             // แนวทแยงขวา
-            if (!isWind) {
-                isWind = true;
+            if (!isWin) {
+                isWin = true;
                 slotWin = [];
                 let lastIndex = tableSize - 1;
                 for (let index = 0; index < tableSize; index++) {
                     if (tableSlot[index][lastIndex - index] !== player) {
-                        isWind = false;
+                        isWin = false;
                         break;
                     } else {
                         slotWin.push(index + '-' + (lastIndex - index));
@@ -233,18 +232,16 @@
                 }
             }
 
-            if (isWind) {
+            if (isWin) {
                 return slotWin;
             }
             return [];
         }
 
-        function checkGameOver(tern, saveHistoryFlag) {
-            if (tern >= tableSize * tableSize) {
-                drawBG();
-                $('#tern-label').text('Game Over: Draw');
-                setGameStop(saveHistoryFlag);
-            }
+        function setGameOver(tern, saveHistoryFlag) {
+            drawBG();
+            $('#tern-label').text('Game Over: Draw');
+            setGameStop(saveHistoryFlag);
         }
 
         function setGameWin(player, slotWin, saveHistoryFlag) {
