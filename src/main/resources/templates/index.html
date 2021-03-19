@@ -75,8 +75,13 @@
         <hr/>
         <div class="container form-inline" style="padding: 10px;border: none;">
             <div class="row justify-content-md-center form-group" style="border: none;">
-                <label>Speed:</label>
-                <input class="form-control mx-sm-2" type="number" id="delay" min="1" max="3" value="1" style="width: 60px" />
+                <!--<label>Speed:</label>-->
+                <select id="delay" class="from-control">
+                    <option value="5" selected="selected">Fast</option>
+                    <option value="2">Normal</option>
+                    <option value="1">Slow</option>
+                </select>
+                <!--<input class="form-control mx-sm-2" type="number" id="delay" min="1" max="3" value="1" style="width: 60px" />-->
             </div>
         </div>
         <div class="container" style="padding: 0">
@@ -137,7 +142,7 @@
                         let index = 0;
                         resetTable();
 
-                        let delay = 1000 / Number($('#delay').val());
+                        let delay = 2000 / Number($('#delay').val());
 
                         $('.col.col-lg-12.data').css('pointer-events', 'none');
                         let interval = setInterval(function () {
@@ -157,15 +162,9 @@
         function setXO(el, saveHistoryFlag) {
             history.push({key: el.id, value: player});
             let rowAndCol = el.id.split('-');
-            if (tern % 2 === 0) {
-                tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
-                $(el).find('span:first-child').css('display', 'block');
-                $(el).css('pointer-events', 'none');
-            } else {
-                tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
-                $(el).find('span:nth-child(2)').css('display', 'block');
-                $(el).css('pointer-events', 'none');
-            }
+            tableSlot[rowAndCol[0]][rowAndCol[1]] = player;
+            $(el).find('span:' + (tern % 2 === 0 ? 'first-child' : 'nth-child(2)')).css('display', 'block');
+            $(el).css('pointer-events', 'none');
             tern++;
             let slotWin = checkWin(rowAndCol[0], rowAndCol[1], player);
             if (slotWin.length > 0) {
